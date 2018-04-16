@@ -1,4 +1,4 @@
-# TextFiles
+# Text Files
 Design an application to manipulate the CSVs in the data directory.
 
 ### Your application should accomplish the following:

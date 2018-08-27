@@ -53,6 +53,18 @@ class CsvFile {
     }
 
     /**
+     * Get full path of underlying file resource
+     * @return string
+     */
+    public function getStreamPath()
+    {
+        if (is_null($this->file)) {
+            throw new RuntimeException("File resource not opened");
+        }
+        return stream_get_meta_data($this->file)['uri'];
+    }
+
+    /**
      * @return bool
      */
     public function isHasHeaderRow()
@@ -109,7 +121,6 @@ class CsvFile {
             throw new RuntimeException("Unable to reset file resource");
         }
 
-        //TODO should this only check first row column count, or all rows?
         $row = fgetcsv($this->file);
         $count = count($row);
 

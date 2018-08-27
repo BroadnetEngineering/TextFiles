@@ -2,6 +2,7 @@
 
 /**
  * Broadnet CSV text file coding challenge - Main executable
+ * @author jecklund
  */
 
 spl_autoload_register(function ($class) {
@@ -9,7 +10,13 @@ spl_autoload_register(function ($class) {
 });
 
 $appStartTime = time();
-CsvManip::run();
+
+try {
+    CsvManip::run();
+} catch (Exception $exception) {
+    die("Exception occurred: " . $exception);
+}
+
 $appEndTime = time();
 
 $totalAppTime = $appEndTime - $appStartTime;

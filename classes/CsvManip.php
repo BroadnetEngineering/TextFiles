@@ -34,30 +34,61 @@ abstract class CsvManip {
     /**
      * Command line options
      */
-    const OPTS_SHORT = 'rclda:s:u:mh';
+    const OPTS_SHORT = 'rcldas:umhx:';
     const OPTS_LONG = [
         'help',
         'count-rows',
         'count-cols',
         'list-cols',
         'dupe',
-        'add:',
+        'add',
+        'remove:',
         'search:',
-        'update:',
+        'update',
         'merge',
         'use-big-list'
     ];
+    const OPTS_LONG_VALUES = [
+        // these are used for adding/updating records
+        'phone',
+        'last-name',
+        'first-name',
+        'title',
+        'address',
+        'address-2',
+        'city',
+        'state',
+        'zip-code',
+        'job-title',
+        'email',
+        'voted',
+        'district',
+        'special-id',
+        'party'
+    ];
 
+    /**
+     * Get command line options array
+     * @return array
+     */
     static function getOpts() {
-        return getopt(static::OPTS_SHORT, static::OPTS_LONG);
+        $longOptions = static::OPTS_LONG;
+
+        foreach (static::OPTS_LONG_VALUES as $valueKey) {
+            $longOptions[] = $valueKey . ':';
+        }
+
+        return getopt(static::OPTS_SHORT, $longOptions);
     }
 
+    /**
+     * Run application
+     */
     static function run() {
         $opts = static::getOpts();
         $list = static::FILE_SMALL_LIST;
 
         if (!$opts || empty($opts) || isset($opts['h']) || isset($opts['help'])) {
-            //TODO output command line help text and exit
             static::showHelp();
             exit;
         }
@@ -69,43 +100,70 @@ abstract class CsvManip {
         $csvFilename = dirname(__FILE__) . DIRECTORY_SEPARATOR . static::DIRECTORY_DATA . DIRECTORY_SEPARATOR . $list;
         $csv = new CsvFile($csvFilename);
 
-        //TODO determine which action(s) are being called from command line arguments
+        if (isset($opts['a']) || isset($opts['add'])) {
+            static::doAddItem($csv, $opts);
+        }
+
         if (isset($opts['c']) || isset($opts['count-cols'])) {
             static::doCountCols($csv);
-        }
-
-        if (isset($opts['r']) || isset($opts['count-rows'])) {
-            static::doCountRows($csv);
-        }
-
-        if (isset($opts['l']) || isset($opts['list-cols'])) {
-            static::doListCols($csv);
         }
 
         if (isset($opts['d']) || isset($opts['dupe'])) {
             static::doRemoveDupes($csv);
         }
 
-        if (isset($opts['a']) || isset($opts['add'])) {
-
-        }
-
-        if (isset($opts['s']) || isset($opts['search'])) {
-
-        }
-
-        if (isset($opts['u']) || isset($opts['update'])) {
-
+        if (isset($opts['l']) || isset($opts['list-cols'])) {
+            static::doListCols($csv);
         }
 
         if (isset($opts['m']) || isset($opts['merge'])) {
-
+            $sourceCsv = new CsvFile(dirname(__FILE__) . DIRECTORY_SEPARATOR . static::DIRECTORY_DATA . DIRECTORY_SEPARATOR  . static::FILE_SMALL_LIST);
+            $targetCsv = new CsvFile(dirname(__FILE__) . DIRECTORY_SEPARATOR . static::DIRECTORY_DATA . DIRECTORY_SEPARATOR . static::FILE_BIG_LIST);
+            static::doCombineLists($sourceCsv, $targetCsv);
         }
 
+        if (isset($opts['r']) || isset($opts['count-rows'])) {
+            static::doCountRows($csv);
+        }
+
+        if (isset($opts['s']) || isset($opts['search'])) {
+            $searchValue = isset($opts['s']) ? $opts['s'] : $opts['search'];
+            static::doSearchList($csv, $searchValue);
+        }
+
+        if (isset($opts['u']) || isset($opts['update'])) {
+            static::doUpdateItem($csv, $opts);
+        }
+
+        if (isset($opts['x']) || isset($opts['remove'])) {
+            $key = isset($opts['x']) ? $opts['x'] : $opts['remove'];
+            static::doRemoveItem($csv, $key);
+        }
+
+        $csv->close();
+    }
+
+    private static function doAddItem(CsvFile $csvFile, array $opts) {
+        if (!isset($opts['phone'])) {
+            throw new InvalidArgumentException("phone argument is required for adding items");
+        }
+
+        // Check phone number for uniqueness before adding to file
+        $phone = $opts['phone'];
+        if (CsvHelper::getRow($csvFile, $phone) !== false) {
+            throw new InvalidArgumentException("Cannot add duplicate row: phone must be unique");
+        }
+
+        $values = [];
+        foreach (static::OPTS_LONG_VALUES as $field) {
+            $values[] = isset($opts[$field]) ? $opts[$field] : '';
+        }
+
+        CsvHelper::addRow($csvFile, $values);
+        echo "Added row to file" . PHP_EOL;
     }
 
     private static function doCountCols(CsvFile $csvFile) {
-        //TODO wrap all calls to csvFile with try..catch statements
         $columnCount = $csvFile->countCols();
         echo "Column count: " . $columnCount . PHP_EOL;
     }
@@ -120,18 +178,63 @@ abstract class CsvManip {
         echo "Column list: " . implode(', ', $cols) . PHP_EOL;
     }
 
-    private static function doRemoveDupes(CsvFile $csvFile) {
-        //TODO wrap this in try..catch block
-        $startRowCount = $csvFile->countRows();
-        CsvHelper::removeDupes($csvFile);
+    private static function doCombineLists(CsvFile $sourceCsvFile, CsvFile $targetCsvFile) {
+        echo "Combining CSV files" . PHP_EOL;
+        CsvHelper::combineFiles($sourceCsvFile, $targetCsvFile);
+        echo "Finished combining CSV files             " . PHP_EOL;
+    }
 
-        $endRowCount = $csvFile->countRows();
-        $removedRows = $startRowCount - $endRowCount;
-        echo "Removed " . $removedRows . " duplicate rows from CSV file" . PHP_EOL;
+    private static function doRemoveDupes(CsvFile $csvFile) {
+        echo "Removing duplicate rows from CSV file" . PHP_EOL;
+
+        CsvHelper::removeDupes($csvFile);
+        echo "Removed duplicate rows from CSV file" . PHP_EOL;
+    }
+
+    private static function doRemoveItem(CsvFile $csvFile, $key) {
+        if (is_null($key)) {
+            throw new InvalidArgumentException("key argument is required for removing items");
+        }
+
+        echo "Removing item '" . $key . "' from list" . PHP_EOL;
+        CsvHelper::removeRow($csvFile, $key);
+        echo "Removed item" . PHP_EOL;
+    }
+
+    private static function doSearchList(CsvFile $csvFile, $searchTerm) {
+        echo "Searching list for " . $searchTerm . PHP_EOL;
+
+        $row = CsvHelper::search($csvFile, $searchTerm);
+        if ($row) {
+            $csvFile->getCols();
+            echo "Found match for specified search term" . PHP_EOL;
+            echo "Row: " . print_r(array_combine($csvFile->getCols(), $row), true);
+        } else {
+            echo "No matches found" . PHP_EOL;
+        }
+
+        echo "Finished searching"  . PHP_EOL;
+    }
+
+    private static function doUpdateItem(CsvFile $csvFile, array $opts) {
+        if (!isset($opts['phone'])) {
+            throw new InvalidArgumentException("phone argument is required for updating items");
+        }
+
+        $phone = $opts['phone'];
+        $values = [];
+
+        foreach (static::OPTS_LONG_VALUES as $field) {
+            $values[] = isset($opts[$field]) ? $opts[$field] : null;
+        }
+
+        CsvHelper::updateRow($csvFile, $phone, $values);
+
+        echo "Finished updating row" . PHP_EOL;
     }
 
     private static function showHelp() {
-        //TODO show help text for command line
+        echo CommandHelp::getHelpText() . "\n";
     }
 
 }

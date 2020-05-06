@@ -14,4 +14,4 @@ Design an application to manipulate the CSVs in the data directory.
 * Command line or web based
 * Memory footprint should never exceed 1 MB
 * No databases
-* MUST be written in PHP
+* May be written in the language of your choice.

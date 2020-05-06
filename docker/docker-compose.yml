@@ -1,0 +1,17 @@
+version: '3'
+
+networks:
+  textfiles:
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: txt-php
+    volumes:
+      - ../:/var/www
+    ports:
+      - "9000:9000"
+    networks:
+      - textfiles

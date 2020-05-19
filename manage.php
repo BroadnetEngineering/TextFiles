@@ -97,22 +97,22 @@ class FileManipulation
             $objRegenFile = new \lib\RegenerateCsv(BASE_PATH . "/data/", $strFile);
             $objRegenFile->init();
 
-			if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
-			{
-				$arrHeader = fgetcsv($fp);
+            if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
+            {
+                $arrHeader = fgetcsv($fp);
 
                 $objRegenFile->appendRow($arrHeader);
 
-				while(($arrData = fgetcsv($fp)) !== false)
-				{
+                while(($arrData = fgetcsv($fp)) !== false)
+                {
                     $csvData = array_combine($arrHeader, $arrData);
 
                     if(str_replace($arrPhoneReplace, "", $csvData["Phone"]) != str_replace($arrPhoneReplace, "", $this->arrArgs["phone"])) {
                         $objRegenFile->appendRow($csvData);
                     }
-				}
-				fclose($fp);
-			}
+                }
+                fclose($fp);
+            }
 
             $objRegenFile->close();
 
@@ -143,9 +143,9 @@ class FileManipulation
                 continue;
             }
 
-			if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r+')) !== false)
-			{
-				$arrHeader = fgetcsv($fp);
+            if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r+')) !== false)
+            {
+                $arrHeader = fgetcsv($fp);
 
                 fseek($fp, 0, SEEK_END);
 
@@ -165,8 +165,8 @@ class FileManipulation
                     fputcsv($fp, $arrNewRow);    
                 }
 
-				fclose($fp);
-			}
+                fclose($fp);
+            }
 
             break;
         }
@@ -186,9 +186,9 @@ class FileManipulation
                 continue;
             }
 
-			if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
-			{
-				$arrHeader = fgetcsv($fp);
+            if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
+            {
+                $arrHeader = fgetcsv($fp);
 
                 $intPhonePos = array_flip($arrHeader)["Phone"];
 
@@ -199,8 +199,8 @@ class FileManipulation
                     }
                 }
 
-				fclose($fp);
-			}
+                fclose($fp);
+            }
         }
 
         return json_encode($arrResults);
@@ -227,14 +227,14 @@ class FileManipulation
             $objRegenFile = new \lib\RegenerateCsv(BASE_PATH . "/data/", $strFile);
             $objRegenFile->init();
 
-			if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
-			{
-				$arrHeader = fgetcsv($fp);
+            if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
+            {
+                $arrHeader = fgetcsv($fp);
 
                 $objRegenFile->appendRow($arrHeader);
 
-				while(($arrData = fgetcsv($fp)) !== false)
-				{
+                while(($arrData = fgetcsv($fp)) !== false)
+                {
                     $csvData = array_combine($arrHeader, $arrData);
 
                     if(str_replace($arrPhoneReplace, "", $csvData["Phone"]) == str_replace($arrPhoneReplace, "", $this->arrArgs["phone"])) {
@@ -244,9 +244,9 @@ class FileManipulation
                     }
 
                     $objRegenFile->appendRow($csvData);
-				}
-				fclose($fp);
-			}
+                }
+                fclose($fp);
+            }
 
             $objRegenFile->close();
 
@@ -287,22 +287,22 @@ class FileManipulation
                 continue;
             }
 
-			if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
-			{
-				$arrHeader = fgetcsv($fp);
+            if(($fp = fopen(BASE_PATH . "/data/" . $strFile, 'r')) !== false)
+            {
+                $arrHeader = fgetcsv($fp);
 
                 $objRegenFile->appendRow($arrHeader);
 
-				while(($arrData = fgetcsv($fp)) !== false)
-				{
+                while(($arrData = fgetcsv($fp)) !== false)
+                {
                     $csvData = array_combine($arrHeader, $arrData);
 
                     if(!$objManageDups->isDup($csvData["Phone"])) {
                         $objRegenFile->appendRow($csvData);
                     }
-				}
-				fclose($fp);
-			}
+                }
+                fclose($fp);
+            }
 
             if($strFile != $strLargestFile) {
                 unlink(BASE_PATH . "/data/" . $strFile);

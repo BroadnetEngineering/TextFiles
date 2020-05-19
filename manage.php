@@ -42,7 +42,6 @@ if(!empty($strAction) && method_exists($objFileManipulation, $strAction)) {
 class FileManipulation
 {
     public $arrArgs = array();
-    private $arrDups = array();
 
     public function __construct($arrArgs) {
         $this->arrArgs = $arrArgs;

@@ -15,7 +15,7 @@ Follows these rules:
 * No databases
 * May be written in the language of your choice.
 
-**Please note, quality and good design practices have been sacrificed due to the time limit.  Therefore, I absolutely would not advocate for using this project outside of its intended use, which is to satisf, which is to satisf, which is to satisf, which is to satisf, which is to satisf, which is to satisf, which is to satisf, which is to satisf, which is to satisfy a coding assessment.** 
+**Please note, quality and good design practices have been sacrificed due to the time limit.  Therefore, I absolutely would not advocate for using this project outside of its intended use, which is to satisfy a coding assessment.** 
 
 ### Usage
 ```

@@ -18,7 +18,7 @@ class ManageDups
             if(strpos($this->strCacheDir, "/phone_cache") === false) {
                 throw new \Exception("phone cache dir must include phone_cache in order to recursively delete");
             } else {
-                exec("rm -rf " . $this->strCacheDir);
+                exec(escapeshellcmd("rm -rf " . $this->strCacheDir));
             }
         }
     }
